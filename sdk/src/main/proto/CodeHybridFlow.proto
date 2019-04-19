@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "io.imulab.q.flow";
+option java_outer_classname = "CodeHybridFlowProto";
+
+package flow;
+
+import "google/protobuf/any.proto";
+
+service CodeHybridFlow {
+    rpc Authorize(AuthorizeRequest) returns (AuthorizeResponse);
+    rpc Token(TokenRequest) returns (TokenResponse);
+}
+
+message AuthorizeRequest {
+    string id = 1;
+    int64 request_at = 2;
+    repeated string response_types = 3;
+    string redirect_uri = 4;
+    repeated string scopes = 5;
+    Client client = 6;
+    Session session = 7;
+
+    message Session {
+        // the obfuscated subject,
+        // or the plain subject when not using pairwise calculation
+        string subject = 1;
+        // user's granted scopes
+        repeated string granted_scopes = 2;
+        // user's authenticated time, if required
+        int64 auth_time = 3;
+        // user's satisfied acr values
+        repeated string acr_values = 4;
+        // request nonce
+        string nonce = 5;
+        // final redirect uri
+        string final_redirect_uri = 6;
+        // json serialized access claims to be put in access tokens
+        string access_claims = 7;
+        // json serialized id claims to be put in id tokens
+        string id_claims = 8;
+    }
+}
+
+message AuthorizeResponse {
+    string code = 1;
+    string access_token = 2;
+    string token_type = 4;
+    int64 expires_in = 5;
+    string id_token = 6;
+}
+
+message TokenRequest {
+    string id = 1;
+    int64 request_at = 2;
+    repeated string grant_types = 3;
+    string code = 4;
+    string redirectUri = 5;
+    Client client = 6;
+}
+
+message TokenResponse {
+    string access_token = 2;
+    string token_type = 4;
+    int64 expires_in = 5;
+    string refresh_token = 6;
+    string id_token = 7;
+}
+
+message Client {
+    string id = 1;
+    repeated string response_types = 2;
+    repeated string grant_types = 3;
+    repeated string redirect_uris = 4;
+    repeated string scopes = 5;
+    string jwks = 6;
+    string id_token_sign_alg = 7;
+    string id_token_encrypt_alg = 8;
+    string id_token_encrypt_enc = 9;
+    string secret = 10;
+}
