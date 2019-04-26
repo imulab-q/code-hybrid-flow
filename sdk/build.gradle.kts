@@ -21,6 +21,7 @@ dependencies {
     implementation("io.grpc:grpc-stub:1.15.1")
     implementation("io.grpc:grpc-protobuf:1.15.1")
     implementation("com.google.code.gson:gson:2.8.5")
+    implementation("javax.annotation:javax.annotation-api:1.3.2")
 }
 
 tasks {
