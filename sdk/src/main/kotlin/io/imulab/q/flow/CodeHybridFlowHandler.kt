@@ -22,13 +22,12 @@ class CodeHybridFlowHandler(
 ) : AuthorizeHandler, TokenHandler {
 
     override suspend fun authorize(request: AuthorizeRequest, response: Response) {
-        val authorizeResponse = coroutineScope {
-            async(Dispatchers.IO) {
-                stub.authorize(request.toGrpcAuthorizeRequest())
-            }
-        }
-
         try {
+            val authorizeResponse = coroutineScope {
+                async(Dispatchers.IO) {
+                    stub.authorize(request.toGrpcAuthorizeRequest())
+                }
+            }
             response.applyAuthorizeResponse(authorizeResponse.await())
         } catch (e: StatusRuntimeException) {
             throw e.toConnectException()
@@ -42,13 +41,12 @@ class CodeHybridFlowHandler(
     }
 
     override suspend fun issueToken(request: TokenRequest, response: Response) {
-        val tokenResponse = coroutineScope {
-            async(Dispatchers.IO) {
-                stub.token(request.toGrpcTokenRequest())
-            }
-        }
-
         try {
+            val tokenResponse = coroutineScope {
+                async(Dispatchers.IO) {
+                    stub.token(request.toGrpcTokenRequest())
+                }
+            }
             response.applyTokenResponse(tokenResponse.await())
         } catch (e: StatusRuntimeException) {
             throw e.toConnectException()

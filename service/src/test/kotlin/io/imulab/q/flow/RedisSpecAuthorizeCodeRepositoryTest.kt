@@ -69,10 +69,9 @@ class RedisSpecAuthorizeCodeRepositoryTest : FunSpec({
     }
 
     override fun beforeSpec(spec: Spec) {
-        val config = Config {
-            addSpec(RedisSpec)
-            addSpec(ConnectSpec)
-        }.from.yaml.resource("application.yaml").from.env()
+        val config = Config { addSpec(RedisSpec) }
+            .from.yaml.resource("test.yaml")
+            .from.env()
 
         repository = RedisAuthorizeCodeRepository(
             jedis = Jedis(config[RedisSpec.host], config[RedisSpec.port]),

@@ -31,7 +31,7 @@ internal fun AuthorizeRequest.toGrpcAuthorizeRequest(): io.imulab.q.flow.Authori
 /**
  * Convert gRPC authorize request model to connect-sdk [AuthorizeRequest].
  */
-internal fun io.imulab.q.flow.AuthorizeRequest.toConnectAuthorizeRequest(): AuthorizeRequest {
+fun io.imulab.q.flow.AuthorizeRequest.toConnectAuthorizeRequest(): AuthorizeRequest {
     return ConnectAuthorizeRequest(
         id = this.id,
         requestedAt = LocalDateTime.ofEpochSecond(this.requestAt, 0, ZoneOffset.UTC),
@@ -100,7 +100,7 @@ internal fun TokenRequest.toGrpcTokenRequest(): io.imulab.q.flow.TokenRequest {
 /**
  * Convert gRPC token request model to connect-sdk [TokenRequest].
  */
-internal fun io.imulab.q.flow.TokenRequest.toConnectTokenRequest(): TokenRequest {
+fun io.imulab.q.flow.TokenRequest.toConnectTokenRequest(): TokenRequest {
     return ConnectTokenRequest(
         id = this.id,
         requestedAt = LocalDateTime.ofEpochSecond(this.requestAt, 0, ZoneOffset.UTC),
@@ -115,7 +115,7 @@ internal fun io.imulab.q.flow.TokenRequest.toConnectTokenRequest(): TokenRequest
 /**
  * Convert connect-sdk [Response] to gRPC authorize response model.
  */
-internal fun Response.toGrpcAuthorizeResponse(): AuthorizeResponse {
+fun Response.toGrpcAuthorizeResponse(): AuthorizeResponse {
     return AuthorizeResponse.newBuilder().also { b ->
         b.code = this.getCode()
         b.accessToken = this.getAccessToken()
@@ -128,7 +128,7 @@ internal fun Response.toGrpcAuthorizeResponse(): AuthorizeResponse {
 /**
  * Apply data from gRPC authorize response model to connect-sdk [Response].
  */
-internal fun Response.applyAuthorizeResponse(response: AuthorizeResponse) {
+fun Response.applyAuthorizeResponse(response: AuthorizeResponse) {
     setCode(response.code)
     setAccessToken(response.accessToken)
     setTokenType(response.tokenType)
@@ -139,7 +139,7 @@ internal fun Response.applyAuthorizeResponse(response: AuthorizeResponse) {
 /**
  * Convert connect-sdk [Response] to gRPC token response model.
  */
-internal fun Response.toGrpcTokenResponse(): TokenResponse {
+fun Response.toGrpcTokenResponse(): TokenResponse {
     return TokenResponse.newBuilder().also { b ->
         b.accessToken = this.getAccessToken()
         b.tokenType = this.getTokenType()
@@ -231,17 +231,17 @@ private class GrpcClient(
  * Convert [ConnectException] to gRPC specific [StatusRuntimeException].
  */
 fun ConnectException.toStatusRuntimeException(): StatusRuntimeException {
-    val t = Status.INTERNAL
-        .withDescription(this.message ?: this.error)
-        .withCause(this)
-        .asRuntimeException()
-    t.trailers.apply {
-        put(connectErrorCodeKey, this@toStatusRuntimeException.error)
-        put(connectErrorDescriptionKey, this@toStatusRuntimeException.message ?: "")
-        put(connectErrorStatusCodeKey, this@toStatusRuntimeException.statusCode.toString())
-        put(connectErrorHeadersKey, Gson().toJson(this@toStatusRuntimeException.headers))
-    }
-    return t
+    return StatusRuntimeException(
+        Status.INTERNAL
+            .withDescription(this.message ?: this.error)
+            .withCause(this),
+        Metadata().apply {
+            put(connectErrorCodeKey, this@toStatusRuntimeException.error)
+            put(connectErrorDescriptionKey, this@toStatusRuntimeException.message ?: "")
+            put(connectErrorStatusCodeKey, this@toStatusRuntimeException.statusCode.toString())
+            put(connectErrorHeadersKey, Gson().toJson(this@toStatusRuntimeException.headers))
+        }
+    )
 }
 
 /**

@@ -16,7 +16,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.0")
     implementation(project(":code-hybrid-flow-sdk"))
     implementation("io.imulab:connect-sdk:0.1.1")
-    implementation("org.koin:koin-core:2.0.0-rc-2")
+    implementation("io.grpc:grpc-protobuf:1.15.1")
     implementation("io.grpc:grpc-stub:1.15.1")
     implementation("io.grpc:grpc-netty:1.15.1")
     implementation("com.uchuhimo:konf:0.13.2")

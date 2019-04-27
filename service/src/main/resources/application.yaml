@@ -1,2 +1,9 @@
 connect:
-  codeLifespan: 10m
+  code:
+    lifespan: 10m
+    entropy: 16
+  accessToken:
+    lifespan: 30m
+    entropy: 32
+  idToken:
+    lifespan: 60m
