@@ -1,0 +1,75 @@
+version: 2.1
+
+commands:
+  save_workspace:
+    steps:
+      - persist_to_workspace:
+          root: ~/code-hybrid-flow
+          paths:
+            - .
+  restore_workspace:
+    steps:
+      - attach_workspace:
+          at: ~/code-hybrid-flow
+  restore_gradle:
+    steps:
+      - restore_cache:
+          key: dependency-cache-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+      - restore_cache:
+          key: dependency-cache-{{ checksum "build.gradle.kts" }}-{{ checksum "sdk/build.gradle.kts" }}-{{ checksum "service/build.gradle.kts" }}
+  save_gradle:
+    steps:
+      - save_cache:
+          key: dependency-cache-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+          paths:
+            - ~/.gradle/wrapper
+      - save_cache:
+          key: dependency-cache-{{ checksum "build.gradle.kts" }}-{{ checksum "sdk/build.gradle.kts" }}-{{ checksum "service/build.gradle.kts" }}
+          paths:
+            - ~/.gradle/caches
+
+orbs:
+  codecov: codecov/codecov@1.0.2
+
+jobs:
+  build:
+    docker:
+      - image: circleci/openjdk:11.0.2
+      - image: circleci/redis:5.0.4-alpine3.9
+      - image: rabbitmq:3.7
+    environment:
+      - RABBIT_PORT: 5672
+      - REDIS_PORT: 27017
+    working_directory: ~/code-hybrid-flow
+    steps:
+      - checkout
+      - restore_gradle
+      - run: ./gradlew test build
+      - run: |
+          if [ "$CIRCLE_BRANCH" == "master" ]; then
+            APPENDIX=""
+          elif [ "$CIRCLE_BRANCH" == "development" ]; then
+            APPENDIX="-SNAPSHOT"
+          else
+            APPENDIX="-${CIRCLE_SHA1}"
+          fi
+          echo $(./gradlew properties -q | grep "^version:" | awk '{print $2}')$APPENDIX > build/current_version
+          echo "current version is: "
+          cat build/current_version
+      - save_gradle
+      - save_workspace
+
+workflow:
+  version: 2.1
+  dev:
+    jobs:
+      - build:
+          filters:
+            branches:
+              ignore: master
+  master:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: master
