@@ -96,6 +96,6 @@ workflows:
           type: approval
           requires:
             - build
-      - publishSdk:
+      - publish_sdk:
           requires:
             - hold
