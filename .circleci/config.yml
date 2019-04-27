@@ -79,6 +79,7 @@ jobs:
       - image: docker:18.09.5
     working_directory: ~/code-hybrid-flow
     steps:
+      - setup_remote_docker
       - restore_workspace
       - run: |
           unset CURRENT_VERSION
