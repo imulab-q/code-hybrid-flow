@@ -3,12 +3,17 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     application
     kotlin("jvm")
+    id("jacoco")
 }
 
 repositories {
     jcenter()
     maven("https://dl.bintray.com/imulab/connect-sdk")
     mavenCentral()
+}
+
+jacoco {
+    toolVersion = "0.8.2"
 }
 
 dependencies {
@@ -34,7 +39,32 @@ application {
 }
 
 tasks {
+    compileKotlin {
+        kotlinOptions {
+            jvmTarget = "1.8"
+            freeCompilerArgs = listOf("-Xjsr305=strict", "-Xjvm-default=enable")
+        }
+    }
+    compileTestKotlin {
+        kotlinOptions {
+            jvmTarget = "1.8"
+            freeCompilerArgs = listOf("-Xjsr305=strict", "-Xjvm-default=enable")
+        }
+    }
     test {
         useJUnitPlatform()
+        testLogging {
+            events("PASSED", "FAILED", "SKIPPED")
+        }
+    }
+    jacocoTestReport {
+        reports {
+            html.apply {
+                isEnabled = true
+            }
+            xml.apply {
+                isEnabled = true
+            }
+        }
     }
 }
