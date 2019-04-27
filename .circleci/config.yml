@@ -61,6 +61,19 @@ jobs:
           cat build/current_version
       - save_gradle
       - save_workspace
+  publishSdk:
+    docker:
+      - image: circleci/openjdk:11.0.2
+    working_directory: ~/code-hybrid-flow
+    steps:
+      - restore_workspace
+      - restore_gradle
+      - run: |
+          if [ "$CIRCLE_BRANCH" == "master" ]; then
+            ./gradlew :code-hybrid-flow-sdk:publishSdkPublicationToReleaseRepository
+          else
+            ./gradlew :code-hybrid-flow-sdk:publishSdkPublicationToSnapshotRepository
+          fi
 
 workflow:
   version: 2.1
@@ -70,9 +83,19 @@ workflow:
           filters:
             branches:
               ignore: master
+      - publishSdk:
+          requires:
+            - build
   master:
     jobs:
       - build:
           filters:
             branches:
               only: master
+      - hold:
+          type: approval
+          requires:
+            - build
+      - publishSdk:
+          requires:
+            - hold
