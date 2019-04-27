@@ -34,7 +34,7 @@ orbs:
 jobs:
   build:
     docker:
-      - image: circleci/openjdk:11.0.2
+      - image: circleci/openjdk:8u181-jdk
       - image: circleci/redis:5.0.4-alpine3.9
       - image: rabbitmq:3.7
     environment:
@@ -63,7 +63,7 @@ jobs:
       - save_workspace
   publish_sdk:
     docker:
-      - image: circleci/openjdk:11.0.2
+      - image: circleci/openjdk:8u181-jdk
     working_directory: ~/code-hybrid-flow
     steps:
       - restore_workspace
@@ -74,6 +74,19 @@ jobs:
           else
             ./gradlew :code-hybrid-flow-sdk:publishSdkPublicationToSnapshotRepository
           fi
+  publish_image:
+    docker:
+      - image: docker:18.09.5
+    working_directory: ~/code-hybrid-flow
+    steps:
+      - restore_workspace
+      - run: |
+          unset CURRENT_VERSION
+          CURRENT_VERSION=$(cat build/current_version)
+          cd service
+          docker build -t imulab/q-code-hybrid-service:${CURRENT_VERSION} .
+          echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin
+          docker push imulab/q-code-hybrid-service:${CURRENT_VERSION}
 
 workflows:
   version: 2.1
@@ -84,6 +97,9 @@ workflows:
             branches:
               ignore: master
       - publish_sdk:
+          requires:
+            - build
+      - publish_image:
           requires:
             - build
   master:
@@ -97,5 +113,8 @@ workflows:
           requires:
             - build
       - publish_sdk:
+          requires:
+            - hold
+      - publish_image:
           requires:
             - hold

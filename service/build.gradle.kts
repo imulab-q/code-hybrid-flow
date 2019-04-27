@@ -4,6 +4,8 @@ plugins {
     application
     kotlin("jvm")
     id("jacoco")
+    java
+    id("com.github.johnrengelman.shadow").version("5.0.0")
 }
 
 repositories {
@@ -35,7 +37,7 @@ dependencies {
 }
 
 application {
-    mainClassName = "io.imulab.q.flow.App"
+    mainClassName = "io.imulab.q.flow.AppKt"
 }
 
 tasks {
@@ -66,5 +68,11 @@ tasks {
                 isEnabled = true
             }
         }
+    }
+    shadowJar {
+        archiveBaseName.set("code-hybrid-flow-service")
+        archiveClassifier.set("fat")
+        archiveVersion.set(project.version.toString())
+        mergeServiceFiles()
     }
 }

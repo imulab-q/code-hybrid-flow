@@ -66,7 +66,7 @@ class RedisAuthorizeCodeRepository(
                     gson.toJson(session),
                     SetParams
                         .setParams()
-                        .ex(lifespan.toSeconds().toInt())
+                        .ex(lifespan.toMillis().toInt() / 1000)
                 )
             }
         }
