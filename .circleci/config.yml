@@ -61,7 +61,7 @@ jobs:
           cat build/current_version
       - save_gradle
       - save_workspace
-  publishSdk:
+  publish_sdk:
     docker:
       - image: circleci/openjdk:11.0.2
     working_directory: ~/code-hybrid-flow
@@ -83,7 +83,7 @@ workflow:
           filters:
             branches:
               ignore: master
-      - publishSdk:
+      - publish_sdk:
           requires:
             - build
   master:
