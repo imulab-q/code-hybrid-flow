@@ -20,10 +20,10 @@ import java.time.Duration
 
 fun main() {
     val config = parseConfig()
-    val service = setupService(config)
     val server = ServerBuilder
         .forPort(config[ServiceSpec.port])
-        .addService(service)
+        .addService(setupService(config))
+        .addService(setupHealthCheck(config))
         .build()
 
     server.start()
@@ -40,6 +40,19 @@ internal fun parseConfig(): Config =
         .from.yaml.resource("application.yaml")
         .from.env()
         .from.systemProperties()
+
+/**
+ * Logic to wire up gRPC health check service
+ */
+internal fun setupHealthCheck(config: Config): HealthCheck {
+    return HealthCheck(
+        jedis = Jedis(config[RedisSpec.host], config[RedisSpec.port]),
+        rabbit = ConnectionFactory().apply {
+            host = config[RabbitSpec.host]
+            port = config[RabbitSpec.port]
+        }
+    )
+}
 
 /**
  * Logic to wire up all components for [CodeHybridFlowService].

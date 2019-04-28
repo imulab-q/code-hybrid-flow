@@ -26,6 +26,7 @@ dependencies {
     implementation("io.grpc:grpc-protobuf:1.15.1")
     implementation("io.grpc:grpc-stub:1.15.1")
     implementation("io.grpc:grpc-netty:1.15.1")
+    implementation("io.grpc:grpc-services:1.15.1")
     implementation("com.uchuhimo:konf:0.13.2")
     implementation("redis.clients:jedis:3.0.1")
     implementation("com.rabbitmq:amqp-client:5.7.0")
